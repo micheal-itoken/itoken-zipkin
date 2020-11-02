@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    config:
+      uri: http://micheal.wang:8888
+      name: itoken-zipkin
+      label: master
+      profile: prod
