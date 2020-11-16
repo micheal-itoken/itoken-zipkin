@@ -1,0 +1,28 @@
+def project_url = "https://github.com/micheal-itoken/itoken-zipkin.git"
+def github_auth = "ebd4cc1e-8c5d-410d-b8e0-d6a2401f9412"
+node {
+    def mvnHome
+    stage('拉取代码') { // for display purposes
+        checkout([$class: 'GitSCM', branches: [[name: '*/main']],
+            doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [],
+            userRemoteConfigs: [[credentialsId: "${github_auth}", url: "${project_url}"]]])
+    }
+    stage('构建代码') {
+        dir('/var/jenkins_home/workspace/itoken-zipkin') {
+            // some block
+            sh "/app/maven/maven-3.6.3/bin/mvn clean package"
+            echo 'bu ild success'
+            sh "cp target/itoken-zipkin-1.0.0-SNAPSHOT.jar docker/"
+        }
+    }
+    stage('构建镜像') {
+        dir('/var/jenkins_home/workspace/itoken-zipkin/docker') {
+            // some block
+            sh "docker build -t itoken-zipkin ."
+            echo 'docker build success'
+            sh "docker-compose up -d "
+            echo 'docker-compose up -d success'
+        }
+        echo 'deploy code'
+    }
+}
